@@ -89,12 +89,10 @@ variable "public_key_path" {
 ### 3. ` main.tf `
 
 ```Hcl
-# 1. VPC
 resource "yandex_vpc_network" "develop" {
   name = "develop"
 }
 
-# 2. Публичная подсеть
 resource "yandex_vpc_subnet" "public" {
   name           = "public"
   zone           = "ru-central1-a"
@@ -102,7 +100,6 @@ resource "yandex_vpc_subnet" "public" {
   v4_cidr_blocks = ["192.168.10.0/24"]
 }
 
-# 3. Приватная подсеть
 resource "yandex_vpc_subnet" "private" {
   name           = "private"
   zone           = "ru-central1-a"
@@ -111,7 +108,6 @@ resource "yandex_vpc_subnet" "private" {
   route_table_id = yandex_vpc_route_table.nat-route.id
 }
 
-# 4. Route Table
 resource "yandex_vpc_route_table" "nat-route" {
   name       = "nat-route"
   network_id = yandex_vpc_network.develop.id
@@ -122,7 +118,6 @@ resource "yandex_vpc_route_table" "nat-route" {
   }
 }
 
-# 5. NAT-инстанс
 resource "yandex_compute_instance" "nat-instance" {
   name        = "nat-instance"
   platform_id = "standard-v1"
@@ -135,14 +130,14 @@ resource "yandex_compute_instance" "nat-instance" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd80mrhj8fl2oe87o4e1" # Образ NAT-инстанса
+      image_id = "fd80mrhj8fl2oe87o4e1"
     }
   }
 
   network_interface {
     subnet_id  = yandex_vpc_subnet.public.id
     ip_address = "192.168.10.254"
-    nat        = true # Нужно для доступа в интернет
+    nat        = true
   }
 
   metadata = {
@@ -150,7 +145,6 @@ resource "yandex_compute_instance" "nat-instance" {
   }
 }
 
-# 6. Публичная ВМ (для теста)
 resource "yandex_compute_instance" "public-vm" {
   name        = "public-vm"
   platform_id = "standard-v1"
@@ -162,7 +156,7 @@ resource "yandex_compute_instance" "public-vm" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd83c1pf8uf99qhppnvb" # Ubuntu 22.04
+      image_id = "fd83c1pf8uf99qhppnvb"
     }
   }
 
@@ -176,7 +170,6 @@ resource "yandex_compute_instance" "public-vm" {
   }
 }
 
-# 7. Приватная ВМ
 resource "yandex_compute_instance" "private-vm" {
   name        = "private-vm"
   platform_id = "standard-v1"
@@ -194,7 +187,7 @@ resource "yandex_compute_instance" "private-vm" {
 
   network_interface {
     subnet_id = yandex_vpc_subnet.private.id
-    nat       = false # У приватной ВМ нет публичного IP
+    nat       = false
   }
 
   metadata = {
