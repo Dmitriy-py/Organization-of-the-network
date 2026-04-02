@@ -254,6 +254,7 @@ ssh -A ubuntu@<ПУБЛИЧНЫЙ_IP_PUBLIC_VM>
 ---
 
 ```bash
+ssh ubuntu@<ВНУТРЕННИЙ_IP_PRIVATE_VM>
 ping -c 4 8.8.8.8
 ```
 
